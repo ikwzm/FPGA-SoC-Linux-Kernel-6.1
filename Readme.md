@@ -32,11 +32,19 @@ This Repository provides a Linux Kernel (v6.1.x) Image and Device Trees for FPGA
 Release
 ------------------------------------------------------------------------------------
 
-The main branch contains only Readme.md.
+The main branch contains only Readme.md.     
 For Linux Kernel image and Debian Packages, please refer to the respective release tag listed below.
 
 | Version  | Local Name          | Build Version | Release Tag |
 |:---------|:--------------------|:--------------|:------------|
 | 6.1.22   | armv7-fpga          | 5             | [6.1.22-armv7-fpga-5](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.22-armv7-fpga-5) |
 
+Download
+------------------------------------------------------------------------------------
 
+```console
+shell$ export RELEASE_TAG=6.1.22-armv7-fpga-5
+shell$ wget https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/archive/refs/tags/$RELEASE_TAG.tar.gz
+shell$ tar xfz $RELEASE_TAG.tar.gz
+shell$ cd FPGA-SoC-Linux-Kernel-6.1-$RELEASE_TAG
+```
