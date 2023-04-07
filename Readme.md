@@ -10,9 +10,12 @@ This Repository provides a Linux Kernel (v6.1.22) Image and Device Trees for FPG
 
 ### Note
 
-**The Linux Kernel Image provided in this repository is not official.**
+**The Linux Kernel Image provided in this repository is not official.**    
+**I modified it to my liking. Please handle with care.**    
 
-**I modified it to my liking. Please handle with care.**
+**Downloading the entire repository takes time, so download the files from URL**   
+
+https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/releases/6.1.22-armv7-fpga-5
 
 ### Features
 
@@ -30,3 +33,20 @@ This Repository provides a Linux Kernel (v6.1.22) Image and Device Trees for FPG
   + Enable FPGA Reagion
   + Patch for issue #3(USB-HOST does not work with PYNQ-Z1)
 
+Files
+------------------------------------------------------------------------------------
+
+* vmlinuz-6.1.22-armv7-fpga-5
+* linux-headers-6.1.22-armv7-fpga_6.1.22-armv7-fpga-5_armhf.deb
+* linux-image-6.1.22-armv7-fpga_6.1.22-armv7-fpga-5_armhf.deb
+* ./devicetrees/6.1.22-armv7-fpga-5/
+  + socfpga_cyclone5_de0_nano_soc.dtb
+  + zynq-pynqz1.dtb
+  + zynq-zybo-z7.dtb
+  + zynq-zybo.dtb
+* [./files/config-6.1.22-armv7-fpga-5](./files/config-6.1.22-armv7-fpga-5)
+
+Build
+------------------------------------------------------------------------------------
+
+* [./doc/build/linux-kernel-6.1.22.md](./doc/build/linux-kernel-6.1.22.md)
