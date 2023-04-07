@@ -23,8 +23,8 @@ https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/releases/6.1.22-armv7-fpga-5
   + ZYBO    : Xilinx Zynq-7000 ARM/FPGA SoC Trainer Board by Digilent
   + ZYBO-Z7 : Xilinx Zynq-7020 Development Board by Digilent
   + PYNQ-Z1 : Python Productive for Zynq by Digilent
-  + DE0-Nano-SoC : Altera SoC FPGA Development Kit by Terasic
-  + DE10-Nano    : Altera SoC FPGA Development Kit by Terasic
+  + ~~DE0-Nano-SoC : Altera SoC FPGA Development Kit by Terasic~~ (Will not boot. Under investigation.)
+  + ~~DE10-Nano    : Altera SoC FPGA Development Kit by Terasic~~ (Will not boot. Under investigation.)
 * Linux Kernel Version 6.1.22
   + Available in both Xilinx-Zynq-7000 and Altera-SoC in a single image
   + Enable Device Tree Overlay
