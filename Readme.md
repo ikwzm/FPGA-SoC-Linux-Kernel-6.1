@@ -16,11 +16,11 @@ This Repository provides a Linux Kernel (v6.1.x) Image and Device Trees for FPGA
 ### Features
 
 * Hardware
-  + ZYBO    : Xilinx Zynq-7000 ARM/FPGA SoC Trainer Board by Digilent
-  + ZYBO-Z7 : Xilinx Zynq-7020 Development Board by Digilent
+  + ZYBO    : AMD(Xilinx) Zynq-7000 ARM/FPGA SoC Trainer Board by Digilent
+  + ZYBO-Z7 : AMD(Xilinx) Zynq-7020 Development Board by Digilent
   + PYNQ-Z1 : Python Productive for Zynq by Digilent
-  + ~~DE0-Nano-SoC : Altera SoC FPGA Development Kit by Terasic~~ (Will not boot. Under investigation.)
-  + ~~DE10-Nano    : Altera SoC FPGA Development Kit by Terasic~~ (Will not boot. Under investigation.)
+  + DE0-Nano-SoC : Intel(Altera) SoC FPGA Development Kit by Terasic
+  + DE10-Nano    : Intel(Altera) SoC FPGA Development Kit by Terasic
 * Linux Kernel Version 6.1.x
   + Available in both Xilinx-Zynq-7000 and Altera-SoC in a single image
   + Enable Device Tree Overlay
@@ -37,13 +37,13 @@ For Linux Kernel image and Debian Packages, please refer to the respective relea
 
 | Version  | Local Name          | Build Version | Release Tag |
 |:---------|:--------------------|:--------------|:------------|
-| 6.1.22   | armv7-fpga          | 5             | [6.1.22-armv7-fpga-5](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.22-armv7-fpga-5) |
+| 6.1.22   | armv7-fpga          | 6             | [6.1.22-armv7-fpga-6](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.22-armv7-fpga-6) |
 
 Download
 ------------------------------------------------------------------------------------
 
 ```console
-shell$ export RELEASE_TAG=6.1.22-armv7-fpga-5
+shell$ export RELEASE_TAG=6.1.22-armv7-fpga-6
 shell$ wget https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/archive/refs/tags/$RELEASE_TAG.tar.gz
 shell$ tar xfz $RELEASE_TAG.tar.gz
 shell$ cd FPGA-SoC-Linux-Kernel-6.1-$RELEASE_TAG
