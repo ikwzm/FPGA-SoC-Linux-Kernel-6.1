@@ -294,7 +294,7 @@ index 755f6f109..e01e86485 100644
  &usb0 {
 diff --git a/arch/arm/configs/armv7_fpga_defconfig b/arch/arm/configs/armv7_fpga_defconfig
 new file mode 100644
-index 000000000..344037fc9
+index 000000000..a965bedea
 --- /dev/null
 +++ b/arch/arm/configs/armv7_fpga_defconfig
 @@ -0,0 +1,4982 @@
@@ -582,7 +582,7 @@ index 000000000..344037fc9
 +# CONFIG_ARCH_ROCKCHIP is not set
 +# CONFIG_ARCH_S5PV210 is not set
 +# CONFIG_ARCH_RENESAS is not set
-+CONFIG_ARCH_SOCFPGA=y
++CONFIG_ARCH_INTEL_SOCFPGA=y
 +# CONFIG_SOCFPGA_SUSPEND is not set
 +# CONFIG_PLAT_SPEAR is not set
 +# CONFIG_ARCH_STI is not set
