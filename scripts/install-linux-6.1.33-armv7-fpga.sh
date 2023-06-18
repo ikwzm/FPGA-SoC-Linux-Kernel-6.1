@@ -6,4 +6,5 @@ KERNEL_VERSION=6.1.33
 LOCAL_VERSION=armv7-fpga
 BUILD_VERSION=1
 
+. "$SCRIPT_DIR/install-variables-armv7-fpga.sh"
 . "$SCRIPT_DIR/install-command.sh"

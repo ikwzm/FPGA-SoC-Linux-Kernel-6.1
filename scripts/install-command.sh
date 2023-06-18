@@ -2,6 +2,8 @@
 
 set -e
 script_name=$0
+script_dir=$(cd $(dirname $0); pwd)
+script_version="0.1"
 verbose=0
 dry_run=0
 error=0
@@ -10,6 +12,24 @@ target_list=""
 run_help=0
 run_install_directory=1
 run_install_image=1
+run_install_dtb=1
+run_generate_uenv=0
+
+if [ -e "$script_dir/install-variables.sh" ]; then
+    . "$script_dir/install-variables.sh"
+fi
+
+get_install_variable()
+{
+    local var=$(eval echo "\${$1}")
+    echo $var
+}
+
+eval_install_variable()
+{
+    local var=$(eval echo "\${$1}")
+    eval echo $var
+}
 
 do_help_option()
 {
@@ -20,23 +40,48 @@ do_help_option()
     fi
 }
 
+do_help_target_list()
+{
+    local target_id
+    local pattern_list=""
+    for target_id in $(get_install_variable "target_id_list") ; do
+        pattern_list=$(get_install_variable "${target_id}_pattern")
+        echo "    ${pattern_list// / | }"
+    done
+}
+
+do_help_examples()
+{
+    local target_id
+    local target_name=""
+    local pattern_list=""
+    for target_id in $(get_install_variable "target_id_list") ; do
+	if [ -z "$target_name" ]; then
+            pattern_list=$(get_install_variable "${target_id}_pattern")
+	    target_name="${pattern_list%% *}"
+        fi
+    done
+    if [ -n "$target_name" ]; then
+        echo "EXAMPLE"
+        echo "    ${script_name} -d /mnt/boot/ -v ${target_name}"
+        echo ""
+    fi
+}
+
 do_help()
 {
+    local script_description=$(get_install_variable "script_description")
     echo "NAME"
-    echo "    $script_name - FPGA-SoC-Linux-Kernel Installer"
+    echo "    $script_name - ${script_description} ${script_version}"
     echo ""
     echo "SYNOPSYS"
     echo "    $script_name [<options>] TARGET..."
     echo ""
     echo "DESCRIPTION"
-    echo "    ZynqMP-FPGA-Linux-Kernel Installer"
+    echo "    ${script_description}"
     echo ""
     echo "TARGET"
-    echo "    ZYBO-Z7|zybo-z7"
-    echo "    ZYBO|zybo"
-    echo "    PYNQ-Z1|pynq-z1|pynqz1"
-    echo "    DE10-Nano|de10-nano"
-    echo "    DE0-Nano-SoC|de0-nano-soc"
+    do_help_target_list
     echo ""
     echo "OPTIONS"
     do_help_option "-h, --help                  Run Help command"
@@ -44,11 +89,13 @@ do_help()
     do_help_option "-v, --verbose               Turn on verbosity"
     do_help_option "-d, --directory      <args> Target directory"
     do_help_option "-T, --dt-only               Install Device Tree Only"
+    do_help_option "-U, --uenv-generate         Generate example uEnv.txt for u-boot"
     do_help_option "-R, --kernel-release <args> Kernel Release" "$KERNEL_RELEASE"
     do_help_option "-V, --kernel-version <args> Kernel version" "$KERNEL_VERSION"
     do_help_option "-L, --local-version  <args> Local version " "$LOCAL_VERSION"
     do_help_option "-B, --build-version  <args> Build version " "$BUILD_VERSION"
     echo ""
+    do_help_examples
 }
 
 run_command()
@@ -88,6 +135,10 @@ while [ $# -gt 0 ]; do
 	    run_install_image=0
 	    shift
 	    ;;
+	-U|--uenv-generate)
+	    run_generate_uenv=1
+	    shift
+	    ;;
 	-R|--kernel-release)
 	    shift
 	    kernel_release=$1
@@ -108,30 +159,27 @@ while [ $# -gt 0 ]; do
 	    build_version=$1
 	    shift
 	    ;;
-	ZYBO-Z7|zybo-z7)
-	    target_list="$target_list ZYBO-Z7"
-	    shift
-	    ;;
-	ZYBO|zybo)
-	    target_list="$target_list ZYBO"
-	    shift
-	    ;;
-	PYNQ-Z1|pynq-z1|pynqz1)
-	    target_list="$target_list PYNQ-Z1"
-	    shift
-	    ;;
-	DE10-Nano|de10-nano)
-	    target_list="$target_list DE10-Nano"
-	    shift
-	    ;;
-	DE0-Nano-SoC|de0-nano-soc)
-	    target_list="$target_list DE0-Nano-SoC"
-	    shift
-	    ;;
 	*)
-	    echo "Error: Not Support Target $1"
-	    error=1
-	    run_help=1
+	    target_found=0
+            for target_id in $(get_install_variable "target_id_list") ; do
+		if [ "$target_found" -eq 0 ]; then
+		    for target_pattern in $(get_install_variable "${target_id}_pattern") ; do
+                        case "$1" in
+			    $target_pattern )
+		                target_list="$target_list $target_id"
+				target_found=1
+			        ;;
+			    *)
+			        ;;
+		        esac
+		    done
+		fi
+	    done
+	    if [ "$target_found" -eq 0 ] ; then
+	        echo "Error: Not Support Target $1"
+	        error=1
+	        run_help=1
+	    fi
 	    shift
 	    ;;
     esac
@@ -182,6 +230,8 @@ if [ -z "$output_directory" ]; then
 fi
 
 if [ $verbose -ne 0 ]; then
+    echo "# SCRIPT NAME     = " $script_name
+    echo "# SCRIPT VERSION  = " $script_version
     echo "# KERNEL_RELEASE  = " $kernel_release
     echo "# BUILD_VERSION   = " $build_version
     echo "# TARGET          = " $target_list
@@ -192,13 +242,21 @@ if [ $error -ne 0 ]; then
     exit 1
 fi
 
-if [ ! -e "$REPO_DIR/vmlinuz-$kernel_release-$build_version" ]; then
-    echo "Error: Not found vmlinuz-$kernel_release-$build_version in $REPO_DIR"
+if [ -z "$kernel_image_source_file"  ]; then
+    kernel_image_source_file="vmlinuz-${kernel_release}-${build_version}"
+fi
+
+if [ ! -e "$REPO_DIR/$kernel_image_source_file" ]; then
+    echo "Error: Not found $kernel_image_source_file in $REPO_DIR"
     error=1
 fi
 
-if [ ! -e "$REPO_DIR/devicetrees/$kernel_release-$build_version" ]; then
-    echo "Error: Not found devicetrees/$kernel_release-$build_version in $REPO_DIR"
+if [ -z "$device_tree_source_path" ]; then
+    device_tree_source_path="devicetrees/${kernel_release}-${build_version}"
+fi
+
+if [ ! -e "$REPO_DIR/$device_tree_source_path" ]; then
+    echo "Error: Not found $device_tree_source_path in $REPO_DIR"
     error=1
 fi
 
@@ -210,63 +268,98 @@ if [ $run_install_directory -ne 0 ]; then
     run_command "install -d $output_directory"
 fi
 
-if [ $run_install_image -ne 0 ]; then
-    run_command "cp $REPO_DIR/vmlinuz-$kernel_release-$build_version $output_directory/vmlinuz-$kernel_release"
-fi
-
-do_dtb_install()
+do_install_image()
 {
-    local dtb_source=""
-    local dtb_target=""
-    local dts_target=""
-    if [ $dry_run -ne 0 ] || [ $verbose -ne 0 ]; then
-	echo "# do_dtb_install($1)"
-    fi    
-    case "$1" in
-	ZYBO-Z7)
-	    dtb_source=zynq-zybo-z7.dtb
-	    dtb_target=devicetree-$kernel_release-zynq-zybo-z7.dtb
-	    dts_target=devicetree-$kernel_release-zynq-zybo-z7.dts
+    local kernel_image_target=$(eval_install_variable "target_kernel_image")
+    local install_source_file="${REPO_DIR}/${kernel_image_source_file}"
+    local install_target_file="${output_directory}/${kernel_image_target}"
+    local install_image_command=""
+    case $kernel_image_target in
+        vmlinuz-*)
+            install_image_command="cp ${install_source_file} ${install_target_file}"
+            ;;
+        image-*)
+            install_image_command="gzip -d -c ${install_source_file} > ${install_target_file}"
 	    ;;
-	ZYBO)
-	    dtb_source=zynq-zybo.dtb
-	    dtb_target=devicetree-$kernel_release-zynq-zybo.dtb
-	    dts_target=devicetree-$kernel_release-zynq-zybo.dts
-	    ;;
-	PYNQ-Z1)
-	    dtb_source=zynq-pynqz1.dtb
-	    dtb_target=devicetree-$kernel_release-zynq-pynqz1.dtb
-	    dts_target=devicetree-$kernel_release-zynq-pynqz1.dts
-	    ;;
-	DE10-Nano)
-	    dtb_source=socfpga_cyclone5_de0_nano_soc.dtb
-	    dtb_target=devicetree-$kernel_release-socfpga.dtb
-	    dts_target=devicetree-$kernel_release-socfpga.dts
-	    ;;
-	DE0-Nano-SoC)
-	    dtb_source=socfpga_cyclone5_de0_nano_soc.dtb
-	    dtb_target=devicetree-$kernel_release-socfpga.dtb
-	    dts_target=devicetree-$kernel_release-socfpga.dts
-	    ;;
+        *)
+            echo "Error: Not support kernel image type (target_kernel_image=${kernel_image_target})"
+	    return 1
+	;;
     esac
+    run_command "$install_image_command"
+}
+
+do_install_dtb()
+{
+    if [ $dry_run -ne 0 ] || [ $verbose -ne 0 ]; then
+	echo "# do_install_dtb($1)"
+    fi    
+
+    local dtb_source=$(eval_install_variable "${1}_dtb_source")
+    local dtb_target=$(eval_install_variable "${1}_dtb_target")
+    local dts_target=$(eval_install_variable "${1}_dts_target")
+    local dtb_source_path="${REPO_DIR}/${device_tree_source_path}"
+    local dtb_source_file="${dtb_source_path}/${dtb_source}"
+    local dtb_target_file="${output_directory}/${dtb_target}"
+    local dts_target_file="${output_directory}/${dts_target}"
+
     if [ -z "$dtb_source" ]; then
         echo "Error: Device Tree not specified"
         return 1
     fi
-    if [ ! -e "$REPO_DIR/devicetrees/$kernel_release-$build_version/$dtb_source" ]; then
-        echo "Error: Not found $dtb_source in $REPO_DIR/devicetrees/$kernel_release-$build_version"
+    if [ ! -e "$dtb_source_file" ]; then
+        echo "Error: Not found $dtb_source in $dtb_source_path"
         return 1
     fi
-	
-    run_command "cp $REPO_DIR/devicetrees/$kernel_release-$build_version/$dtb_source $output_directory/$dtb_target"
-    run_command "dtc -I dtb -O dts --symbols -o $output_directory/$dts_target $output_directory/$dtb_target"
+
+    run_command "cp ${dtb_source_file} ${dtb_target_file}"
+    run_command "dtc -I dtb -O dts --symbols -o ${dts_target_file} ${dtb_target_file}"
     return 0
 }
 
-if [ -n "$target_list" ]; then
-    set $target_list
-    while [ $# -gt 0 ]; do
-        do_dtb_install $1
-        shift
+do_generate_uenv()
+{
+    if [ $dry_run -ne 0 ] || [ $verbose -ne 0 ]; then
+	echo "# do_generate_uenv($1)"
+    fi
+    local linux_kernel_name=$(eval_install_variable "target_kernel_image")
+    local uenv_file_name=$(eval_install_variable "target_uenv_txt")
+    local linux_fdt_image=$(eval_install_variable "${1}_dtb_target")
+    
+    if [ $dry_run -ne 0 ] || [ $verbose -ne 0 ]; then
+	echo "# cat ... > ${output_directory}/${uenv_file_name}"
+    fi
+    cat <<EOT > "${output_directory}/${uenv_file_name}"
+########################################################################
+#uenv: config_name   = ${1}
+#uenv: menu_title    = Boot linux-${kernel_release}
+#uenv: menu_priority = -1
+########################################################################
+
+########################################################################
+# Linux Kernel Files
+#  * linux_kernel_image : Linux Kernel Image File Name
+#  * linux_fdt_image    : Linux Device Tree Blob File Name
+########################################################################
+linux_kernel_image=${linux_kernel_name}
+linux_fdt_image=${linux_fdt_image}
+EOT
+
+}
+
+if [ $run_install_image -ne 0 ]; then
+    do_install_image 
+fi
+
+if [ $run_install_dtb -ne 0 ]; then
+    for target_id in $(echo "$target_list"); do
+        do_install_dtb $target_id
     done
 fi
+
+if [ $run_generate_uenv -ne 0 ]; then
+    for target_id in $(echo "$target_list"); do
+        do_generate_uenv $target_id
+    done
+fi
+
