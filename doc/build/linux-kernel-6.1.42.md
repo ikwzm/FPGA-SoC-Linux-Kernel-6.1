@@ -83,21 +83,14 @@ shell$ make socfpga_cyclone5_de0_nano_soc.dtb
 
 ```console
 shell$ cp arch/arm/boot/zImage ../vmlinuz-6.1.42-armv7-fpga-1
+shell$ install -d              ../files
 shell$ cp .config              ../files/config-6.1.42-armv7-fpga-1
 ```
 
 #### Install devicetree to this repository
 
 ```console
-shell$ install -d ../devicetrees/6.1.42-armv7-fpga-1
-shell$ cp arch/arm/boot/dts/zynq*    ../devicetrees/6.1.42-armv7-fpga-1
-shell$ cp arch/arm/boot/dts/socfpga* ../devicetrees/6.1.42-armv7-fpga-1
-```
-
-#### Install devicetree to this repository
-
-```console
-shell$ install -d ../devicetrees/6.1.42-armv7-fpga-1
+shell$ install -d                    ../devicetrees/6.1.42-armv7-fpga-1
 shell$ cp arch/arm/boot/dts/zynq*    ../devicetrees/6.1.42-armv7-fpga-1
 shell$ cp arch/arm/boot/dts/socfpga* ../devicetrees/6.1.42-armv7-fpga-1
 ```

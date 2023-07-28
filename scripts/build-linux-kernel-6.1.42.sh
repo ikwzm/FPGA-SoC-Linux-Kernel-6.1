@@ -65,11 +65,12 @@ make socfpga_cyclone5_de0_nano_soc.dtb
 ### Install kernel image to this repository
 
 cp arch/arm/boot/zImage ../vmlinuz-$KERNEL_RELEASE-$BUILD_VERSION
+install -d              ../files
 cp .config              ../files/config-$KERNEL_RELEASE-$BUILD_VERSION
 
 ### Install devicetree to this repository
 
-install -d ../devicetrees/$KERNEL_RELEASE-$BUILD_VERSION
+install -d                    ../devicetrees/$KERNEL_RELEASE-$BUILD_VERSION
 cp arch/arm/boot/dts/zynq*    ../devicetrees/$KERNEL_RELEASE-$BUILD_VERSION
 cp arch/arm/boot/dts/socfpga* ../devicetrees/$KERNEL_RELEASE-$BUILD_VERSION
 
