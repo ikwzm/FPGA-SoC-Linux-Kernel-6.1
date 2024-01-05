@@ -37,6 +37,7 @@ For Linux Kernel image and Debian Packages, please refer to the respective relea
 
 | Version  | Local Name          | Build Version | Release Tag |
 |:---------|:--------------------|:--------------|:------------|
+| 6.1.70   | armv7-fpga          | 1             | [6.1.70-armv7-fpga-1](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.70-armv7-fpga-1) |
 | 6.1.47   | armv7-fpga          | 1             | [6.1.47-armv7-fpga-1](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.47-armv7-fpga-1) |
 | 6.1.42   | armv7-fpga          | 1             | [6.1.42-armv7-fpga-1](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.42-armv7-fpga-1) |
 | 6.1.33   | armv7-fpga          | 1             | [6.1.33-armv7-fpga-1](https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/tree/6.1.33-armv7-fpga-1) |
@@ -46,7 +47,7 @@ Download
 ------------------------------------------------------------------------------------
 
 ```console
-shell$ export RELEASE_TAG=6.1.47-armv7-fpga-1
+shell$ export RELEASE_TAG=6.1.70-armv7-fpga-1
 shell$ wget https://github.com/ikwzm/FPGA-SoC-Linux-Kernel-6.1/archive/refs/tags/$RELEASE_TAG.tar.gz
 shell$ tar xfz $RELEASE_TAG.tar.gz
 shell$ cd FPGA-SoC-Linux-Kernel-6.1-$RELEASE_TAG
